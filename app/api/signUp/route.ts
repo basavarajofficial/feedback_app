@@ -3,7 +3,7 @@ import dbConnect from "@/lib/db";
 import UserModel from "@/model/User.model";
 import bcrypt from 'bcryptjs';
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
     await dbConnect();
     try {
         const {username, email, password} =  await request.json();

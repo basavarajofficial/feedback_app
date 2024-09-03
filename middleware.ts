@@ -14,19 +14,23 @@ export async function middleware(request: NextRequest) {
         url.pathname.startsWith('/signUp') ||
         url.pathname.startsWith('/verify') ||
         url.pathname.startsWith('/')
-
     )){
         //* once u get the token with above mentioned paths, will redirect tyo dashboard
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
+    if(!token && url.pathname.startsWith('/dashboard')){
+        return NextResponse.redirect(new URL('/signIn', request.url))
+    }
     //* this will render on very first excution
-  return NextResponse.redirect(new URL('/home', request.url))
+    return NextResponse.next();
 }
 
 // See "Matching Paths" below to learn more
 //* these pages needs authentication
 export const config = {
     matcher: [
+        '/signIn',
+        '/signUp',
         '/',
         '/dashboard/:path*',
         '/verify/:path*'
