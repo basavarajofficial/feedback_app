@@ -13,10 +13,11 @@ export async function POST(request: Request) {
             isVerified: true
         });
         if(existingVerifiedUsername){
-            return Response.json({success: false, message: "username already taken!"}, {status: 400});
+            return Response.json({success: false, message: "username already taken!"}, {status: 500});
         }
 
         const existingUserByEmail = await UserModel.findOne({email});
+
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
         if(existingUserByEmail){
@@ -50,8 +51,10 @@ export async function POST(request: Request) {
         }
         //* send Verification email
         const emailResponse = await sendVerificationEmail(email,username, verifyCode);
+        console.log(emailResponse);
+
         if(!emailResponse.success){
-            return Response.json({success: false, message: emailResponse.message}, { status: 500});
+            return Response.json({success: false, message: emailResponse.message }, { status: 500});
         }
 
         return Response.json({success: true, message: "User registered successfully. Please verify your email"}, { status: 201});

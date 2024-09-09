@@ -16,7 +16,7 @@ export async function sendVerificationEmail(
             react: VerificationsEmailTemplate({username, otp: verifyCode})
         })
 
-        return {success: false, message: "Verification email sent successfully"}
+        return {success: true, message: "Kindly check your email containing  6 digit code."}
 
     } catch (emailError) {
         console.log("Error sending verification email", emailError);

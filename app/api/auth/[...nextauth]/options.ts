@@ -9,10 +9,7 @@ export const authOptions: NextAuthOptions =  {
         CredentialsProvider({
             id: "credentials",
             name: "Credentials",
-            // `credentials` is used to generate a form on the sign in page.
-            // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-            // e.g. domain, username, password, 2FA token, etc.
-            // You can pass any HTML attribute to the <input> tag through the object.
+
             credentials: {
                 email: { label: "email", type: "text", placeholder: "abc@example.com" },
                 password: { label: "Password", type: "password" }
@@ -60,7 +57,6 @@ export const authOptions: NextAuthOptions =  {
                 session.user.isVerified = token.isVerified;
                 session.user.isAcceptingMessages = token.isAcceptingMessages;
                 session.user.username = token.username;
-
             }
             return session
         },
