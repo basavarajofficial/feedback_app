@@ -21,12 +21,17 @@ import { useToast } from "@/components/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { ApiResponse } from "@/types/ApiResponse";
 import Link from "next/link";
+import { Loader2 } from 'lucide-react'
+import { useDebounceCallback } from "usehooks-ts";
 
 
 const SignUp = () => {
 
     const [username, setUsername] = useState<string>("");
-    const [debouncedUsername, setDebouncedUsername] = useState<string>(username);
+    //* Debounce to update username
+    const debounced = useDebounceCallback(setUsername, 500);
+
+    // const [debouncedUsername, setDebouncedUsername] = useState<string>(username);
     const [usernameMessage, setUsernameMessage] = useState<string>("");
     const [isCheckingUsername, setIsCheckingUsername] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -44,41 +49,64 @@ const SignUp = () => {
         },
     });
 
-     // Debounce logic
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedUsername(username); // Update debouncedUsername only after delay
-    }, 600); // Delay of 0.6 second
+    //* my Debounce technique
+    useEffect(() => {
+        async function checkUsername(){
+            if(username){
+                setIsCheckingUsername(true);
+                setUsernameMessage('');
+                try {
+                    const response = await axios.get<ApiResponse>(`/api/check-username-unique?username=${username}`);
+                    let message = response.data.message;
+                    setUsernameMessage(message);
+                } catch (error) {
+                    const axiosError = error as AxiosError<ApiResponse>;
+                    let axiosErrorMessage = axiosError.response?.data.message;
+                    setUsernameMessage( axiosErrorMessage ?? 'Error checking username');
+                } finally {
+                    setIsCheckingUsername(false);
+                }
+            }
+        }
+        checkUsername()
+    }, [username]);
 
-    // Cleanup function to clear timeout if the user is still typing
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [username]); // Re-run effect if username changes
+     // Debounce logic
+//   useEffect(() => {
+//     const handler = setTimeout(() => {
+//       setDebouncedUsername(username); // Update debouncedUsername only after delay
+//     }, 600); // Delay of 0.6 second
+
+//     // Cleanup function to clear timeout if the user is still typing
+//     return () => {
+//       clearTimeout(handler);
+//     };
+//   }, [username]); // Re-run effect if username changes
 
   // API call when debouncedUsername changes
-  useEffect(() => {
-    const checkUsername = async () => {
-      if (!debouncedUsername.trim()) {
-        setUsernameMessage('');
-        setIsCheckingUsername(false);
-        return;
-      }
+//   useEffect(() => {
+//     const checkUsername = async () => {
+//       if (!debouncedUsername.trim()) {
+//         setUsernameMessage('');
+//         setIsCheckingUsername(false);
+//         return;
+//       }
 
-      setIsCheckingUsername(true);
-      try {
-        const response = await axios.get<ApiResponse>(`/api/check-username-unique?username=${debouncedUsername}`);
-        setUsernameMessage(response.data.message);
-      } catch (error) {
-        const axiosError = error as AxiosError<ApiResponse>;
-        setUsernameMessage(axiosError.response?.data.message ?? 'Error checking username');
-      } finally {
-        setIsCheckingUsername(false);
-      }
-    };
+//       setIsCheckingUsername(true);
+//       try {
+//         const response = await axios.get<ApiResponse>(`/api/check-username-unique?username=${debouncedUsername}`);
+//         let message = response.data.message;
+//         setUsernameMessage(message);
+//       } catch (error) {
+//         const axiosError = error as AxiosError<ApiResponse>;
+//         setUsernameMessage(axiosError.response?.data.message ?? 'Error checking username');
+//       } finally {
+//         setIsCheckingUsername(false);
+//       }
+//     };
 
-    checkUsername();
-  }, [debouncedUsername]); // Only call API when debouncedUsername changes
+//     checkUsername();
+//   }, [debouncedUsername]); // Only call API when debouncedUsername changes
 
     async function onSubmit(data: z.infer<typeof signUpSchema>) {
         setIsSubmitting(true);
@@ -129,13 +157,15 @@ const SignUp = () => {
             render={({ field }) => (
             <FormItem>
                 <FormLabel>Username</FormLabel>
-
+                <FormControl >
                 <Input required placeholder="username" {...field}
                     onChange={(e) => {
                         field.onChange(e);
-                        setUsername(e.target.value);
+                        debounced(e.target.value);
                     }}
                 />
+                </FormControl >
+                {isCheckingUsername && <Loader2 textAnchor="Please wait" className="animate-spin" />}
                 {!isCheckingUsername && usernameMessage && (
                     <p className={`text-sm ${
                         usernameMessage === 'username is available'
@@ -146,6 +176,7 @@ const SignUp = () => {
                     {usernameMessage}
                     </p>
                 )}
+
             </FormItem>
             )}
         />
@@ -178,9 +209,10 @@ const SignUp = () => {
 
         <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ?
-            <p className="animate-spin">
-                <p>Please wait...</p>
-            </p>
+            <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing
+            </>
             : "Signup"}
         </Button>
       </form>

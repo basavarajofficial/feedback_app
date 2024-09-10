@@ -25,11 +25,12 @@ import { useState } from "react"
 import axios, { AxiosError } from "axios"
 import { ApiResponse } from "@/types/ApiResponse"
 import { useParams, useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
 
 function VerifyCode() {
 
-    const params = useParams();
+    const params = useParams<{username: string}>();
     const router = useRouter();
 
     const[ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
@@ -46,17 +47,16 @@ function VerifyCode() {
 
     setIsSubmitting(true);
     try {
-        const res = await axios.post<ApiResponse>('/api/verifyCode', {...data, username: params.username});
-        console.log(res);
+        const res = await axios.post<ApiResponse>('/api/verifyCode', {code: data.code, username: params.username});
+
         toast({
             title: "Success",
             description: res.data.message
         })
         setIsSubmitting(false);
-        router.replace('/dashboard');
+        router.replace('/signIn');
     } catch (error) {
         console.log(error);
-        setIsSubmitting(false);
         const axiosError = error as AxiosError<ApiResponse>;
 
         // Default error message
@@ -67,10 +67,14 @@ function VerifyCode() {
             description: errorMessage,
             variant: "destructive",
         });
+        setIsSubmitting(false);
     }
   }
 
   return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div className=" flex flex-col items-center justify-center max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-extrabold mb-6">Verify your account</h1>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
         <FormField
@@ -92,22 +96,25 @@ function VerifyCode() {
                 </InputOTP>
               </FormControl>
               <FormDescription>
-                Please enter the one-time password sent to your phone.
+                Please enter the one-time password sent to your email.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ?
-            <p className="animate-pulse">
-                <p>verifying...</p>
-            </p>
-            : "Verify"}
+            <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                verifying...
+            </>
+            : "verify"}
         </Button>
       </form>
     </Form>
+    </div>
+    </div>
   )
 }
 

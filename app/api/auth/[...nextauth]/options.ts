@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions =  {
                         ]
                     });
                     if(!user){
-                        throw new Error("No user found with this email address");
+                        throw new Error("Incorrect credentials");
                     }
                     if(!user.isVerified){
                         throw new Error("Please verify your email address before login");
