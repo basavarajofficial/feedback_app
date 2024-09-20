@@ -57,7 +57,7 @@ export async function GET(req: Request){
             return Response.json({success: false, message: "User not found"}, { status: 404})
         }
 
-        return Response.json({success: true, isAcceotingMessages: user.isAcceptingMessages}, { status: 200});
+        return Response.json({success: true, isAcceptingMessages: userFound.isAcceptingMessages}, { status: 200});
 
     } catch (error) {
         console.log("Error in getting accept messages status", error);

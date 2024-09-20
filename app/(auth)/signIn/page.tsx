@@ -48,7 +48,6 @@ const Signinn = () => {
             identifier: data.identifier,
             password: data.password
         })
-        console.log(res);
 
         if(res?.error){
             setIsSubmitting(false);
@@ -61,15 +60,12 @@ const Signinn = () => {
             setIsSubmitting(false);
             toast({
                 title: "Success",
-                description: "Congratulations! You signed in successfully",
+                description: "Congratulations! You have signed in successfully",
             })
+            if(res?.url){
+                return router.replace('/dashboard');
+            }
         }
-
-        if(res?.url){
-            router.replace('/dashboard');
-        }
-
-
     }
 
 

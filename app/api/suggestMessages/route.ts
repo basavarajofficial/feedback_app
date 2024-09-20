@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const result = await streamText({
         model: openai('gpt-4-turbo'),
-        //   messages: convertToCoreMessages(prompt),
+          messages: convertToCoreMessages(prompt),
         maxTokens: 400,
         prompt
     });
