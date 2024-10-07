@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios, { AxiosError } from 'axios';
 import { Check, CopyIcon, Loader2, RefreshCcw } from 'lucide-react';
 import { useSession } from 'next-auth/react'
+import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 
@@ -108,7 +109,10 @@ function Dashboard() {
 
 
     if(!session || !session.user){
-        return <div>Please login</div>
+        return <div className='w-full m-auto flex justify-center font-bold text-3xl gap-2'>Please
+            <Link href="/signIn" className='underline'> sign in </Link>
+            to browse
+        </div>
     }
 
     const {username} =  session.user as User;

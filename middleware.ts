@@ -3,15 +3,15 @@ import { getToken } from 'next-auth/jwt';
 export { default } from 'next-auth/middleware';
 
 export const config = {
-  matcher: ['/signIn', '/signUp', '/', '/verify/:path*'],
+    matcher: ['/signIn', '/signUp', '/', '/verify/:path*', '/dashboard/:path*'],
 };
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  console.log("token: ", token);
+
   const url = request.nextUrl;
 
-  // Redirect to dashboard if the user is already authenticated
-  // and trying to access sign-in, sign-up, or home page
   if (
     token &&
     (url.pathname.startsWith('/signIn') ||
@@ -19,11 +19,11 @@ export async function middleware(request: NextRequest) {
       url.pathname.startsWith('/verify') ||
       url.pathname === '/')
   ) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.rewrite(new URL('/dashboard', request.url));
   }
 
   if (!token && url.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/signIn', request.url));
+    return NextResponse.rewrite(new URL('/signIn', request.url));
   }
 
   return NextResponse.next();

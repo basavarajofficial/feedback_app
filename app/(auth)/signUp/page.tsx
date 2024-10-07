@@ -207,10 +207,10 @@ const SignUp = () => {
 
         <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ?
-            <>
+            <p>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Processing
-            </>
+            </p>
             : "Signup"}
         </Button>
       </form>
